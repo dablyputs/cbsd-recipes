@@ -1,0 +1,47 @@
+jail_borg()
+{
+	ver="native"
+	host_hostname="${jname}.dablyputs.lan"
+	ip4_addr="REALDHCP"
+	interface="auto"
+	nic_hwaddr="00:a0:98:42:36:6f"
+	rctl_nice="1"
+	jailskeldir=""
+	jail_profile="trusted"
+	allow_zfs="1"
+	mount_devfs="1"
+	allow_mount="1"
+	allow_devfs="1"
+	allow_nullfs="1"
+	allow_fusefs="1"
+	allow_linsysfs="1"
+	allow_linprocfs="1"
+	allow_raw_sockets="1"
+	arch="native"
+	mkhostsfile="1"
+	devfs_ruleset="99"
+	baserw="1"
+	mount_ports="1"
+	vnet="1"
+	applytpl="1"
+	floatresolv="1"
+	pkg_bootstrap="1"
+	allow_reserved_ports="1"
+	allow_unprivileged_proc_debug="1"
+	allow_suser="1"
+	allow_extattr="1"
+	persist="1"
+	childrenmax="99"
+	enforce_statfs="1"
+	etcupdate_init="1"
+	exec_start="/bin/sh /etc/rc"
+	exec_stop="/bin/sh /etc/rc.shutdown"
+	emulator="jail"
+}
+
+postcreate_borg(){
+	pkg mode=update
+	pkg mode=install python openssl zstd xxhash liblz4 fusefs-libs git py311-pip py311-borgbackup py311-borgmatic
+
+}
+	

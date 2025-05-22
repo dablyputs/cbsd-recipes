@@ -1,0 +1,45 @@
+# CBSD specific
+*.log
+*.sqlite
+*.db
+*.db-journal
+work/
+tmp/
+*.tar.gz
+*.tar.xz
+*.tar.bz2
+
+# Python specific (for borg/borgmatic)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.history/
+
+# System files
+.DS_Store
+Thumbs.db 
