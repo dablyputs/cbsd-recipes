@@ -1,0 +1,85 @@
+# use CBSD function to generate random MySQL root/phpipam password
+mysql_root_password=$( random_password_gen )
+
+jail_seafile()
+{
+	ver="native"
+	host_hostname="${jname}.dablyputs.lan"
+	ip4_addr="REALDHCP"
+	interface="auto"
+	rctl_nice="1"
+	jailskeldir=""
+	jail_profile="trusted"
+	allow_zfs="1"
+	mount_devfs="1"
+	allow_mount="1"
+	allow_devfs="1"
+	allow_nullfs="1"
+	allow_fusefs="1"
+	allow_linsysfs="1"
+	allow_linprocfs="1"
+	allow_raw_sockets="1"
+	arch="native"
+	mkhostsfile="1"
+	devfs_ruleset="99"
+	baserw="1"
+	mount_ports="1"
+	vnet="1"
+	applytpl="1"
+	floatresolv="1"
+	pkg_bootstrap="1"
+	allow_reserved_ports="1"
+	allow_unprivileged_proc_debug="1"
+	allow_suser="1"
+	allow_extattr="1"
+	persist="1"
+	childrenmax="99"
+	enforce_statfs="1"
+	etcupdate_init="1"
+	exec_start="/bin/sh /etc/rc"
+	exec_stop="/bin/sh /etc/rc.shutdown"
+	emulator="jail"
+}
+
+postcreate_seafile(){
+	# Initialize pkg system
+	pkg mode=update
+	# Install seafile and dependencies
+	pkg mode=install python openssl git apache24\
+	py311-pip py311-borgbackup py311-borgmatic \
+	mysql80-client mysql80-server py311-mysqlclient \
+	py311-pymysql wget seahub
+
+	sysrc \
+			syslogd_flags="-ss -c" \
+			mysql_enable="YES" \
+
+	set +o xtrace
+	echo			
+	${ECHO} "${H3_COLOR}Reset default mysql password: ${N2_COLOR}/root/.mysql_secret${N0_COLOR}"
+	#cbsd jexec
+	jexec <<EOF
+
+export PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/root/bin
+set -o errexit
+
+service mysql-server restart || true
+
+# stabilize service
+sleep 2
+
+chown -R seafile:seafile /usr/local/www/haiwen
+mkdir /tmp/seahub_cache
+chown seafile /tmp/seahub_cache
+
+# Reset default mysql password
+mysql -u root --skip-password <<SEOF
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${mysql_root_password}';
+FLUSH PRIVILEGES;
+SEOF
+
+echo '${mysql_root_password}' > /root/.mysql_secret
+
+EOF
+}
+	
